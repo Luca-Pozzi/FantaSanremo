@@ -69,13 +69,32 @@ if __name__ == "__main__":
 
     print("Total teams <= 100 baudi: ", len(teams) // 5)
     print("Total teams <= 100 baudi with captain: ", len(teams))
-    
+    print("\n")
+
     teams.sort(key=lambda x: x.points, reverse=True)
-    print("\nTop 10")
+    print("##############")
+    print("### Top 10 ###")
+    print("##############")
     for i in range(10):
         print(teams[i], '\n')
     
     teams.sort(key=lambda x: x.points, reverse=False)
-    print("Flop 10")
+    print("###############")
+    print("### Flop 10 ###")
+    print("###############")
     for i in range(10):
         print(teams[i], '\n')
+
+    print("###################")
+    print("### Other stats ###")
+    print("###################")
+    value_to_beat = 2023
+    for i, t in enumerate(teams):
+        if t.points > value_to_beat:
+            break
+    print("No. of teams scoring >{} pt: {}\n".format(value_to_beat,
+                                                     len(teams) - (i + 1)
+                                                     ))
+
+
+    
