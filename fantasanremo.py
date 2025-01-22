@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 )
     
     # Write summary to a Markdown file
-    with open('fantasanreport2024.md', 'w+') as f:
+    with open('FANTASANREPORT2024.md', 'w+') as f:
         # Write the intro
         f.write("# FantaSanReport 2024\n")
         f.write("## General Stats\n")
@@ -141,31 +141,17 @@ if __name__ == "__main__":
 
         # Write the top 10 teams
         teams.sort(key=lambda x: x.points, reverse=True)
-        f.write("## Top 10\n")
+        f.write("## Top 10 teams\n")
         for i in range(10):
             f.write(format_md("{}. {}\n".format(i+1, teams[i])))
         
         # Write the flop 10 teams
         teams.sort(key=lambda x: x.points, reverse=False)
-        f.write("## Flop 10\n")
+        f.write("## Flop 10 teams\n")
         for i in range(10):
             f.write(format_md("{}. {}\n".format(i+1, teams[i])))
         
+        # Add score distribution image to Markdown file
         f.write("## Score distribution\n")
         f.write("![Score distribution histogram]" +
                 "(./plot/2024points_distribution.png)")
-
-        '''
-        print("###################")
-        print("### Other stats ###")
-        print("###################")
-        value_to_beat = 2023
-        for i, t in enumerate(teams):
-            if t.points > value_to_beat:
-                break
-        print("No. of teams scoring >{} pt: {}\n".format(value_to_beat,
-                                                        len(teams) - (i + 1)
-                                                        ))
-        '''
-
-    

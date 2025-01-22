@@ -3,7 +3,7 @@
 * Total teams <= 100 baudi: 90503
 * Total teams <= 100 baudi with captain: 452515
 
-## Top 10
+## Top 10 teams
 1. LaSad, DargenDAmico, **AngelinaMango**, IlTre, BigMama
 <br>Value: 98
 <br>Points: 2395
@@ -44,7 +44,7 @@
 <br>Value: 98
 <br>Points: 2312
 
-## Flop 10
+## Flop 10 teams
 1. FiorellaMannoia, Gazzelle, Irama, AlessandraAmoroso, **Clara**
 <br>Value: 97
 <br>Points: 979
