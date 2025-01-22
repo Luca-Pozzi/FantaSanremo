@@ -1,7 +1,9 @@
-#! /usr/bin/env python
-
+import os
 import csv
 import itertools
+
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Artist:
     def __init__(self, id, name, value, points_tot, points_fin):
@@ -39,11 +41,22 @@ class Team:
                 s += ', '
 
         return s + '\nValue: ' + str(self.value) + '\nPoints: ' + str(self.points)
+    
+def format_md(string):
+    # Include bold text in `**` for bold formatting in Markdown. 
+    BOLD = '\033[1m'
+    END = '\033[0m'
+    md_string = string.replace(BOLD, '**').replace(END, '**')
+    # Change the "in-string" line-breaks (i.e. `\n`) to `\n<br>`. 
+    # This allows line breaks in lists.
+    md_string = md_string.replace('\n', '\n<br>').rstrip('<br>') + '\n'
+    return md_string
 
 if __name__ == "__main__":
     # Create an Artist object for each artist
     artists = []
-    with open('data.txt') as csvfile:
+    root = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(root, 'data', '2024post.txt')) as csvfile:
         rows = csv.reader(csvfile, delimiter=',')
         for i, row in enumerate(rows):
             if not i:   # skip the first line (i.e. the header)
@@ -67,34 +80,92 @@ if __name__ == "__main__":
                          )
                 teams.append(t)
 
-    print("Total teams <= 100 baudi: ", len(teams) // 5)
-    print("Total teams <= 100 baudi with captain: ", len(teams))
-    print("\n")
-
-    teams.sort(key=lambda x: x.points, reverse=True)
-    print("##############")
-    print("### Top 10 ###")
-    print("##############")
-    for i in range(10):
-        print(teams[i], '\n')
+    # Create a plot with the distribution of the team scores
+    points = [t.points for t in teams]
+    fig, ax = plt.subplots()
+    fig.set_size_inches(6*16/9, 6) # 16:9 aspect ratio
+    color = 'grey'  # color to use for axis spines and text
+                    # NOTE. It should be visible also against dark background.
+    # Set axis, ticks, and labels color.
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_color(color)
+    ax.spines['bottom'].set_linewidth(3)
+    ax.spines['left'].set_color(color)
+    ax.spines['left'].set_linewidth(3)
+    ax.xaxis.label.set_color(color)
+    ax.yaxis.label.set_color(color)
+    ax.tick_params(colors=color, which='both')
+    ax.grid(linestyle=':')
+    # Create an histogram to display the distribution of scores
+    counts, bins = np.histogram(points, 
+                                max(points) - min(points) # bins
+                                )
+    ax.bar(bins[:-1], counts)
+    ax.set_xlabel('Points', color = color)
+    ax.set_ylabel('N° of teams', color = color)
+    # Draw relevant quantiles over the bar plot
+    ymax_ax = ax.get_ylim()[-1]     # get upper limit of the Y-axis
+    inv = ax.transData.inverted()   # transform from image to data coordinates
+    for q in [1, 10, 50, 90, 99]:
+        # Write a textbox to display quantile data
+        quantile = np.quantile(points, q/100)
+        if q < 50:
+            txt = "Flop {}%\n{}".format(q, quantile)
+        else:
+            txt = "Top {}%\n{}".format(100-q, quantile)
+        txt_obj = ax.text(quantile, ymax_ax, txt,
+            horizontalalignment='center',
+            verticalalignment='top',
+            color=color
+            )
+        # Draw a vertical line corresponding to the quantile value
+        xmin_txt, ymin_txt = txt_obj.get_window_extent().get_points()[0, :]
+        # Transform coordinates from image to data coordinates
+        xmin_txt, ymin_txt = inv.transform((xmin_txt, ymin_txt))
+        plt.axvline(quantile, 
+                    ymax=ymin_txt/ymax_ax # transform from data to axes coord
+                    )
+    #plt.show() # uncomment for debugging
+    plt.savefig(os.path.join(root, 'plot', '2024points_distribution.png'),
+                transparent = True
+                )
     
-    teams.sort(key=lambda x: x.points, reverse=False)
-    print("###############")
-    print("### Flop 10 ###")
-    print("###############")
-    for i in range(10):
-        print(teams[i], '\n')
+    # Write summary to a Markdown file
+    with open('fantasanreport2024.md', 'w+') as f:
+        # Write the intro
+        f.write("# FantaSanReport 2024\n")
+        f.write("## General Stats\n")
+        f.write("* Total teams <= 100 baudi: {}\n".format(len(teams) // 5))
+        f.write("* Total teams <= 100 baudi with captain: {}\n\n".format(len(teams)))
 
-    print("###################")
-    print("### Other stats ###")
-    print("###################")
-    value_to_beat = 2023
-    for i, t in enumerate(teams):
-        if t.points > value_to_beat:
-            break
-    print("No. of teams scoring >{} pt: {}\n".format(value_to_beat,
-                                                     len(teams) - (i + 1)
-                                                     ))
+        # Write the top 10 teams
+        teams.sort(key=lambda x: x.points, reverse=True)
+        f.write("## Top 10\n")
+        for i in range(10):
+            f.write(format_md("{}. {}\n".format(i+1, teams[i])))
+        
+        # Write the flop 10 teams
+        teams.sort(key=lambda x: x.points, reverse=False)
+        f.write("## Flop 10\n")
+        for i in range(10):
+            f.write(format_md("{}. {}\n".format(i+1, teams[i])))
+        
+        f.write("## Score distribution\n")
+        f.write("![Score distribution histogram]" +
+                "(./plot/2024points_distribution.png)")
 
+        '''
+        print("###################")
+        print("### Other stats ###")
+        print("###################")
+        value_to_beat = 2023
+        for i, t in enumerate(teams):
+            if t.points > value_to_beat:
+                break
+        print("No. of teams scoring >{} pt: {}\n".format(value_to_beat,
+                                                        len(teams) - (i + 1)
+                                                        ))
+        '''
 
     
