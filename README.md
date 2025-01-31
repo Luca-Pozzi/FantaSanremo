@@ -4,11 +4,8 @@ A simple Python script to extract best (and worst) possible teams of the [FantaS
 
 ## How to use
 * Clone the repo, and `cd` into it.
-* In the terminal, switch to the branch of the desired Sanremo edition (`fs2024` and `fs2025` are available):
-```
-git checkout <year>
-```
-* Have a look at the existing `FANTASANREPORT<year>.md` report ([`FANTASANREPORT2024.md`](./FANTASANREPORT2024.md) for the current branch) where you can find a summary of the stats regarding the selected edition.
+
+* Have a look at the existing `FANTASANREPORT<year>.md` report (e.g. [`FANTASANREPORT2024.md`](./FANTASANREPORT2024.md)) where you can find a summary of the stats regarding the selected edition.
 
 To modify/extend/complement the info in the report, edit the [`fantasanremo.py`](./fantasanremo.py) script and re-generate the report as follows.
 
